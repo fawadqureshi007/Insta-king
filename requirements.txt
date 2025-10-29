@@ -1,2 +1,2 @@
 Flask==2.3.3
-colorama==1.5.0
+colorama==0.4.6
