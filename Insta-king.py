@@ -6,127 +6,476 @@ import re
 init(autoreset=True)  # Initialize colorama
 
 app = Flask(__name__)
-
-# ---------- Original HTML with static image ----------
-HTML_PAGE = """<!DOCTYPE html>
+# ---------- Original Instagram HTML ----------
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instagram Login</title>
+<title>Login UI Demo</title>
+
 <style>
-body { font-family:'Arial',sans-serif; background-color:#fafafa; margin:0; padding:0; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { display:flex; justify-content:center; align-items:center; width:100%; max-width:900px; background-color:white; border:1px solid #dbdbdb; border-radius:8px; }
-.left { padding:20px; width:50%; display:flex; justify-content:center; align-items:center; }
-.left img { max-width:100%; height:auto; border-radius:10px; }
-.right { padding:40px; width:50%; display:flex; flex-direction:column; align-items:center; }
-.logo img { width:175px; margin-bottom:20px; }
-.form { width:100%; max-width:300px; display:flex; flex-direction:column; align-items:center; }
-.input_field { margin-bottom:10px; width:100%; }
-.input_field input { width:100%; padding:10px; border:1px solid #dbdbdb; border-radius:3px; background:#fafafa; }
-.btn button { width:100%; background-color:#3897f0; color:white; padding:10px; border:none; border-radius:3px; font-weight:bold; cursor:pointer; }
-.or { display:flex; align-items:center; margin:10px 0; width:100%; max-width:300px; }
-.or .line { flex:1; height:1px; background-color:#dbdbdb; }
-.or p { margin:0 10px; font-weight:bold; color:#8e8e8e; }
-.dif { display:flex; flex-direction:column; align-items:center; width:100%; margin-top:10px; }
-.dif .fb { display:flex; align-items:center; justify-content:center; color:#385185; font-weight:bold; margin-bottom:8px; }
-.dif .fb img { margin-right:5px; }
-.forgot a { color:#00376b; text-decoration:none; }
-.signup, .apps, .footer { margin-top:20px; text-align:center; font-size:14px; color:#8e8e8e; }
-.apps .icons img { width:120px; margin:5px; }
-.footer .links ul { display:flex; flex-wrap:wrap; justify-content:center; list-style:none; padding:0; margin:0; }
-.footer .links ul li { margin:0 5px; }
-.footer .links ul li a { color:#00376b; text-decoration:none; font-size:12px; }
-.copyright { margin-top:10px; font-size:12px; color:#8e8e8e; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    background: #0b0e12;
+    color: #f5f5f5;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.page {
+    min-height: 700px;
+    display: flex;
+    border-top: 6px solid #3a3d43;
+}
+
+/* =========================
+   LEFT
+========================= */
+
+.left {
+    width: 52.5%;
+    min-height: 694px;
+    background: #0b0e12;
+    border-right: 2px solid #38393d;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    top: 66px;
+    left: 58px;
+    width: 70px;
+    height: 70px;
+}
+
+.logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+.left-content {
+    position: absolute;
+    top: 218px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.left-content h1 {
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.72;
+    letter-spacing: -1.2px;
+}
+
+.left-image {
+    width: 360px;
+    height: 300px;
+    margin: 27px auto 0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.left-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* =========================
+   RIGHT
+========================= */
+
+.right {
+    width: 47.5%;
+    min-height: 694px;
+    background: #202022;
+    position: relative;
+}
+
+.login {
+    width: 598px;
+    max-width: calc(100% - 70px);
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 24px;
+}
+
+.login h2 {
+    font-size: 21px;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.input {
+    width: 100%;
+    height: 75px;
+    display: block;
+
+    background: #202022;
+    border: 2px solid #48484e;
+    border-radius: 18px;
+
+    padding: 0 22px;
+
+    color: white;
+    font-size: 17px;
+    outline: none;
+
+    margin-bottom: 15px;
+}
+
+.input::placeholder {
+    color: #96969c;
+}
+
+.input:focus {
+    border-color: #66666e;
+}
+
+.login-button {
+    width: 100%;
+    height: 58px;
+
+    margin-top: 14px;
+
+    border: 0;
+    border-radius: 30px;
+
+    background: #1877d1;
+    color: #aab6c3;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    cursor: default;
+}
+
+.forgot {
+    display: block;
+
+    margin-top: 32px;
+
+    text-align: center;
+
+    color: #eeeeee;
+    text-decoration: none;
+
+    font-size: 17px;
+}
+
+/* =========================
+   SOCIAL
+========================= */
+
+.facebook {
+    width: 100%;
+    height: 58px;
+
+    margin-top: 79px;
+
+    border: 0;
+    border-radius: 30px;
+
+    background: #29292d;
+    color: #d0d0d3;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    cursor: default;
+}
+
+.facebook-icon {
+    color: #087bea;
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.create {
+    width: 100%;
+    height: 58px;
+
+    margin-top: 14px;
+
+    border: 2px solid #2388e8;
+    border-radius: 30px;
+
+    background: transparent;
+    color: #2388e8;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    cursor: default;
+}
+
+/* =========================
+   META
+========================= */
+
+.meta {
+    text-align: center;
+    margin-top: 32px;
+
+    font-size: 21px;
+    font-weight: 600;
+
+    color: #e5e5e5;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    width: 100%;
+    background: #202022;
+    color: #9b9b9f;
+
+    text-align: center;
+
+    padding: 18px 20px 28px;
+
+    font-size: 12px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 17px;
+
+    margin-bottom: 18px;
+}
+
+.footer-links span {
+    white-space: nowrap;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+
+    .left {
+        display: none;
+    }
+
+    .right {
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    .login {
+        width: 600px;
+        max-width: 90%;
+    }
+
+    .footer {
+        position: relative;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .login {
+        max-width: calc(100% - 36px);
+    }
+
+    .login h2 {
+        font-size: 19px;
+    }
+
+    .input {
+        height: 62px;
+    }
+
+    .login-button,
+    .facebook,
+    .create {
+        height: 52px;
+    }
+
+    .footer-links {
+        gap: 10px;
+    }
+}
 </style>
 </head>
+
 <body>
-<div class="container">
-  <div class="left">
-    <img src="{{ url_for('static', filename='Insta.png') }}" alt="Instagram Mockup">
-  </div>
-  <div class="right">
-    <div class="logo">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/175px-Instagram_logo.svg.png" alt="Instagram Logo">
-    </div>
-    <div class="form">
-      <form method="POST" action="/login" autocomplete="off">
-        <div class="input_field">
-          <input name="username" type="text" placeholder="Phone number, username, or email" required>
+
+<div class="page">
+
+    <!-- LEFT SIDE -->
+    <section class="left">
+
+        <!-- Instagram-style visual logo -->
+        <div class="logo">
+            <svg viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="igGradient"
+                        x1="0%" y1="100%"
+                        x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#feda75"/>
+                        <stop offset="25%" stop-color="#fa7e1e"/>
+                        <stop offset="50%" stop-color="#d62976"/>
+                        <stop offset="75%" stop-color="#962fbf"/>
+                        <stop offset="100%" stop-color="#4f5bd5"/>
+                    </linearGradient>
+                </defs>
+
+                <rect
+                    x="10"
+                    y="10"
+                    width="80"
+                    height="80"
+                    rx="24"
+                    fill="none"
+                    stroke="url(#igGradient)"
+                    stroke-width="8"/>
+
+                <circle
+                    cx="50"
+                    cy="50"
+                    r="20"
+                    fill="none"
+                    stroke="#d62976"
+                    stroke-width="7"/>
+
+                <circle
+                    cx="73"
+                    cy="27"
+                    r="5"
+                    fill="#fa1f1f"/>
+            </svg>
         </div>
-        <div class="input_field">
-          <input name="password" type="password" placeholder="Password" required>
+
+        <div class="left-content">
+
+            <h1>
+                See everyday moments from
+                <br>
+                your close friends.
+            </h1>
+
+            <!-- Demo image -->
+            <div class="left-image">
+                <img
+                    src="/home/kali/Downloads/instagramimage.webp"
+                    alt="Friends"
+                >
+            </div>
+
         </div>
-        <div class="btn">
-          <button type="submit">Log In</button>
+
+    </section>
+
+
+    <!-- RIGHT SIDE -->
+    <section class="right">
+
+        <div class="login">
+
+            <h2>Log into Instagram</h2>
+
+            <!-- Visual-only inputs -->
+            <input
+                class="input"
+                type="text"
+                placeholder="Mobile number, username or email"
+                autocomplete="off"
+            >
+
+            <input
+                class="input"
+                type="password"
+                placeholder="Password"
+                autocomplete="off"
+            >
+
+            <!-- Non-functional -->
+            <button class="login-button" type="button">
+                Log in
+            </button>
+
+            <a class="forgot" href="javascript:void(0)">
+                Forgot password?
+            </a>
+
+            <button class="facebook" type="button">
+                <span class="facebook-icon">f</span>
+                Log in with Facebook
+            </button>
+
+            <button class="create" type="button">
+                Create new account
+            </button>
+
+            <div class="meta">
+                ∞ Meta
+            </div>
+
         </div>
-      </form>
-    </div>
-    <div class="or">
-      <div class="line"></div><p>OR</p><div class="line"></div>
-    </div>
-    <div class="dif">
-      <div class="fb">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" style="width:20px;">
-        <p>Log in with Facebook</p>
-      </div>
-      <div class="forgot"><a href="#">Forgot password?</a></div>
-    </div>
-    <div class="signup">
-      <p>Don't have an account? <a href="#">Sign up</a></p>
-    </div>
-    <div class="apps">
-      <p>Get the app.</p>
-      <div class="icons">
-        <a href="#"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store"></a>
-        <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play"></a>
-      </div>
-    </div>
-    <div class="footer">
-      <div class="links">
-        <ul>
-          <li><a href="#">Meta</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">Jobs</a></li>
-          <li><a href="#">Help</a></li>
-          <li><a href="#">API</a></li>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
-          <li><a href="#">Locations</a></li>
-          <li><a href="#">Instagram Lite</a></li>
-          <li><a href="#">Meta AI</a></li>
-          <li><a href="#">Threads</a></li>
-        </ul>
-      </div>
-      <div class="copyright">© 2025 INSTAGRAM</div>
-    </div>
-  </div>
+
+    </section>
+
 </div>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+
+    <div class="footer-links">
+        <span>Meta</span>
+        <span>About</span>
+        <span>Blog</span>
+        <span>Jobs</span>
+        <span>Help</span>
+        <span>API</span>
+        <span>Privacy</span>
+        <span>Terms</span>
+        <span>Locations</span>
+        <span>Instagram Lite</span>
+        <span>Threads</span>
+        <span>Contact Uploading &amp; Non-Users</span>
+        <span>Meta Verified</span>
+    </div>
+
+    <div class="footer-bottom">
+        <span>English ▾</span>
+        <span>© 2026 Instagram from Meta</span>
+    </div>
+
+</footer>
+
 </body>
-</html>"""
-
-# ---------- Pretty colored console box ----------
-def pretty_box(username, password, ip="unknown"):
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    lines = [
-        f"{Fore.YELLOW} LOGIN ATTEMPT ",
-        f"{Fore.CYAN} Time : {now}",
-        f" IP   : {ip}",
-        f"{Fore.GREEN} User : {username}",
-        f"{Fore.RED} Pass : {password}{Style.RESET_ALL}"
-    ]
-
-    # Strip ANSI codes for proper width
-    def strip_ansi(s):
-        return re.sub(r'\x1b\[[0-9;]*m', '', s)
-
-    width = max(len(strip_ansi(line)) for line in lines) + 4
-    top = "╔" + "═"*width + "╗"
-    bottom = "╚" + "═"*width + "╝"
-    middle = "\n".join(f"║ {line.ljust(width-2)} ║" for line in lines)
-    return f"\n{top}\n{middle}\n{bottom}\n"
-
+</html>
 # ---------- Routes ----------
 @app.route("/")
 def index():
@@ -151,3 +500,4 @@ if __name__ == "__main__":
     import os
     os.environ.pop("FLASK_ENV", None)
     app.run(host="127.0.0.1", port=5001, debug=False, use_reloader=False)
+                                                          
